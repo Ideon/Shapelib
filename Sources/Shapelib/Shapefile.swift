@@ -47,6 +47,10 @@ public class Shapefile {
     public let maxBounds: (Double,Double,Double,Double)
 
     public subscript(index: Int) -> Shape<double2> {
+        return readShape(id: Int32(index))
+    }
+
+    private func readShape(id index: Int32) -> Shape<double2> {
         guard
             index < count,
             let shapeHandle = SHPReadObject(handle, Int32(index))
@@ -65,11 +69,21 @@ public class Shapefile {
         var attributes = [String: Attribute]()
         for i in 0..<lookup.count {
             let field = lookup[i]
-            if case let attribute?? = try? field.attribute(handle: dbHandle, record: i) {
+            if case let attribute?? = try? field.attribute(handle: dbHandle, record: Int(index)) {
                 attributes[field.fieldName] = attribute
             }
         }
         return Shape(shapeIndex: object.nShapeId, type: type, parts: parts, attributes: attributes)
+    }
+
+    public var allShapes: [Shape<double2>] {
+        return (0..<Int32(count)).map(readShape(id:))
+    }
+
+    public var fields: [ShapeField] { return lookup.fields }
+
+    public func attribute(named name: String, forShape id: Int) throws -> Attribute? {
+        return try lookup[name]?.attribute(handle: dbHandle, record: id)
     }
 
 }

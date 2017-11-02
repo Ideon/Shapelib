@@ -37,7 +37,7 @@ public struct FieldLookup {
         return fields[index]
     }
 
-    private let fields: [ShapeField]
+    internal let fields: [ShapeField]
     private let namesTable: [String: Int]
 
     public init(handle: DBFHandle) throws {
@@ -88,6 +88,18 @@ public enum Attribute {
     case string(String)
     case double(Double)
     case integer(Int)
+
+}
+
+extension Attribute: CustomStringConvertible {
+
+    public var description: String {
+        switch self {
+        case .string(let value): return value
+        case .double(let value): return value.description
+        case .integer(let value): return value.description
+        }
+    }
 
 }
 
